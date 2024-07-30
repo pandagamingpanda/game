@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Game</title>
+    <style>
+        h1 {
+            padding: text-top;
+            animation: rgbText 3s infinite;
+        }
+
+        @keyframes rgbText {
+            0% { color: red; }
+            33% { color: green; }
+            66% { color: blue; }
+            100% { color: red; }
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #51d2c9; /* Change the RGB values to your desired color */
+            color: #fff;
+        }
+
+        #puzzle-container {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+        }
+
+        .puzzle-piece {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            border: 2px solid #333;
+            cursor: pointer;
+        }
+
+        #play-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            background-color: #ff008c;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Puzzle Game</h1>
+    <div id="puzzle-container"></div>
+    <button id="play-button">Restart</button>
+
+    <audio id="move-sound" src="c:\Users\Rajireddyrama\Downloads\AnyConv.com__mixkit-cartoon-character-sneeze-2209.aac"></audio>
+
+    <script>
+        // Function to create the puzzle
+        function createPuzzle() {
+            const puzzleContainer = document.getElementById('puzzle-container');
+            puzzleContainer.innerHTML = ''; // Clear the puzzle container
+
+            const numbers = Array.from({ length: 8 }, (_, i) => i + 1);
+            numbers.push(null); // Representing the empty space
+
+            // Shuffle the array to randomize the puzzle
+            numbers.sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < numbers.length; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'puzzle-piece';
+                piece.innerText = numbers[i] !== null ? numbers[i] : '';
+                piece.addEventListener('click', () => movePiece(i));
+
+                puzzleContainer.appendChild(piece);
+            }
+        }
+
+        // Function to move a puzzle piece
+        function movePiece(index) {
+            const pieces = Array.from(document.getElementsByClassName('puzzle-piece'));
+            const emptyIndex = pieces.findIndex(piece => piece.innerText === '');
+
+            if (isValidMove(index, emptyIndex)) {
+                // Play the move sound
+                const moveSound = document.getElementById('move-sound');
+                moveSound.play();
+
+                // Swap the pieces
+                const temp = pieces[index].innerText;
+                pieces[index].innerText = pieces[emptyIndex].innerText;
+                pieces[emptyIndex].innerText = temp;
+            }
+
+            // Check if the puzzle is solved
+            if (isPuzzleSolved()) {
+                alert('Congratulations! Puzzle solved!');
+                createPuzzle(); // Restart the game
+            }
+        }
+
+        // Function to check if a move is valid
+        function isValidMove(index, emptyIndex) {
+            const row = Math.floor(index / 3);
+            const col = index % 3;
+
+            const emptyRow = Math.floor(emptyIndex / 3);
+            const emptyCol = emptyIndex % 3;
+
+            // Check if the selected piece is adjacent to the empty space
+            return (
+                (Math.abs(row - emptyRow) === 1 && col === emptyCol) ||
+                (row === emptyRow && Math.abs(col - emptyCol) === 1)
+            );
+        }
+
+        // Function to check if the puzzle is solved
+        function isPuzzleSolved() {
+            const pieces = Array.from(document.getElementsByClassName('puzzle-piece'));
+            for (let i = 0; i < pieces.length - 1; i++) {
+                if (parseInt(pieces[i].innerText) !== i + 1) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Event listener for the Restart button
+        document.getElementById('play-button').addEventListener('click', createPuzzle);
+
+        // Display a welcome message and create the puzzle when the page loads
+        window.onload = function () {
+            alert('Welcome to the Puzzle Game!');
+            createPuzzle();
+        };
+    </script>
+</body>
+</html>
